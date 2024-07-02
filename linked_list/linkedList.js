@@ -1,79 +1,99 @@
 class LinkedList {
-  // constructor(length) {
-  //   this.length = length;
-  // }
-
-  // shorten by new js grammer
   length = 0;
   head = null;
+  tail = null;
 
   add(value) {
-    if (this.head) {
-      let current = this.head;
-      while (current.next) {
-        current = current.next;
-      }
-      current.next = new Node(value);
+    const newNode = new Node(value);
+    if (this.tail) {
+      this.tail.next = newNode;
+      newNode.prev = this.tail;
+      this.tail = newNode;
     } else {
-      this.head = new Node(value);
+      this.head = newNode;
+      this.tail = newNode;
     }
     this.length++;
     return this.length;
   }
+
   search(index) {
     return this.#search(index)[1]?.value;
   }
+
   #search(index) {
     let count = 0;
-    let prev;
     let current = this.head;
-    while (count < index) {
-      prev = current;
-      current = current?.next;
+    while (count < index && current) {
+      current = current.next;
       count++;
     }
-    return [prev, current];
+    return [current?.prev, current];
   }
+
   remove(index) {
     const [prev, current] = this.#search(index);
-    if (prev && current) {
+    if (!current) return undefined;
+
+    if (prev) {
       prev.next = current.next;
-      this.length--;
-      return this.length;
-    } else if (current) {
-      // when index is 0
+    } else {
       this.head = current.next;
-      this.length--;
-      return this.length;
     }
-    // if you can't find target index to delete, then you don't need to do anything.
-    // else {
-    //   return undefined;
-    // }
+
+    if (current.next) {
+      current.next.prev = prev;
+    } else {
+      this.tail = prev;
+    }
+
+    this.length--;
+    return this.length;
+  }
+
+  searchReverse(index) {
+    return this.#searchReverse(index)[1]?.value;
+  }
+
+  #searchReverse(index) {
+    let count = 0;
+    let current = this.tail;
+    while (count < index && current) {
+      current = current.prev;
+      count++;
+    }
+    return [current?.next, current];
   }
 }
 
 class Node {
   next = null;
-  // 외부에서 받는 데이터는 constructor 사용해줘야 함.
+  prev = null;
+
   constructor(value) {
     this.value = value;
   }
 }
 
+// test code
 const ll = new LinkedList();
 
-ll.length;
 ll.add(1); // 1
 ll.add(2); // 2
 ll.add(3); // 3
 ll.add(4); // 4
 ll.add(5); // 5
 ll.add(6); // 6
-console.log(ll.search(6)); // undefined
+
+console.log(ll.search(4)); // 5
+console.log(ll.searchReverse(4)); // 2
+
 ll.remove(4);
 console.log(ll.search(4)); // 6
+
 ll.remove(4);
 console.log(ll.search(4)); // undefined
+
 console.log(ll.remove(4)); // undefined
+
 console.log("end!");
